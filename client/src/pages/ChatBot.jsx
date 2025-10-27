@@ -20,28 +20,6 @@ const ChatBot = ({ onAnalysisComplete, onClose }) => {
         setIsLoading(true);
         setError(null);
 
-        // Try new AI system first
-        try {
-          const { data: initData } = await axiosInstance.post("/data/ai/init");
-          
-          if (initData.success) {
-            setChatSession({ useNewAI: true });
-            setMessages([
-              {
-                sender: "bot",
-                text: "👋 Hi! I'm your Profit First AI assistant.\n\nI can help you understand your business metrics, identify opportunities, and provide actionable insights based on your actual data.\n\nWhat would you like to know?",
-                isAnalysis: true,
-                timestamp: new Date().toISOString(),
-              },
-            ]);
-            setIsLoading(false);
-            return;
-          }
-        } catch (aiError) {
-          console.warn("New AI system unavailable, falling back to basic chat:", aiError.message);
-        }
-
-        // Fallback to old system
         const { data: analyticsData } = await axiosInstance.get("/data/getData");
 
         if (onAnalysisComplete) {
@@ -56,7 +34,6 @@ const ChatBot = ({ onAnalysisComplete, onClose }) => {
         setChatSession({
           threadId: sessionData.threadId,
           assistantId: sessionData.assistantId,
-          useNewAI: false,
         });
 
         setMessages([
@@ -92,55 +69,35 @@ const ChatBot = ({ onAnalysisComplete, onClose }) => {
     setIsLoading(true);
 
     try {
-      let replyPayload;
+      const payload = {
+        message: currentInput,
+        threadId: chatSession.threadId,
+        assistantId: chatSession.assistantId,
+      };
 
-      // Use new AI system if available
-      if (chatSession.useNewAI) {
-        const { data } = await axiosInstance.post("/data/ai/chat", {
-          message: currentInput,
-        });
-        
-        if (data.success) {
-          replyPayload = {
-            reply: data.reply,
-            metadata: data.metadata,
-          };
-        } else {
-          throw new Error(data.error || "AI response failed");
-        }
-      } else {
-        // Fallback to old system
-        const payload = {
-          message: currentInput,
-          threadId: chatSession.threadId,
-          assistantId: chatSession.assistantId,
-        };
-
-        const { data } = await axiosInstance.post("/data/chatmessage", payload);
-        replyPayload = { reply: data.reply };
-      }
+      const { data: replyPayload } = await axiosInstance.post(
+        "/data/chatmessage",
+        payload
+      );
 
       const botMessage = {
         sender: "bot",
         text: replyPayload.reply,
         isAnalysis: true,
         timestamp: new Date().toISOString(),
-        metadata: replyPayload.metadata,
       };
 
       setMessages((prev) => [...prev, botMessage]);
     } catch (err) {
-      console.error("Send message error:", err);
       const msg =
         err.response?.data?.error ||
-        err.response?.data?.message ||
         "Sorry, I encountered an error processing your request.";
       toast.error(msg);
       setMessages((prev) => [
         ...prev,
         {
           sender: "bot",
-          text: "I apologize, but I encountered an error. Please try rephrasing your question.",
+          text: "Sorry, I encountered an error processing your request.",
           isError: true,
           timestamp: new Date().toISOString(),
         },
@@ -162,12 +119,10 @@ const ChatBot = ({ onAnalysisComplete, onClose }) => {
   };
 
   const suggestedQuestions = [
-    "What's my total revenue?",
-    "How many orders do I have?",
-    "What's my profit margin?",
-    "How is my ROAS?",
-    "Why is my RTO high?",
-    "Give me actionable insights",
+    "What is total orders count?",
+    "What is total sales amount?",
+    "What is total ad spend?",
+    "What is estimated profit amount?",
   ];
 
   const isReady = !!chatSession;

@@ -71,7 +71,7 @@ const Login = () => {
     );
   }
 
-  return (
+  return ( 
     <div className="min-h-screen flex items-center justify-center bg-[#101218] text-white relative overflow-hidden">
       <style>{`
         .bg-blob {
