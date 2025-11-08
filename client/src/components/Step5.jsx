@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { PulseLoader } from "react-spinners";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import axiosInstance from "../../axios";
 
 const Step5 = ({ onComplete }) => {
@@ -12,6 +13,8 @@ const Step5 = ({ onComplete }) => {
     password: "",
   });
   const [loading, setLoading] = useState(false);
+
+
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -48,7 +51,8 @@ const Step5 = ({ onComplete }) => {
       toast.success("Shipping account connected!");
       onComplete();
     } catch (err) {
-      const errorMessage = err.response?.data?.message || "Failed to connect shipping account.";
+      const errorMessage =
+        err.response?.data?.message || "Failed to connect shipping account.";
       toast.error(errorMessage);
       console.error("Submission error:", err.response || err);
     } finally {
@@ -168,6 +172,8 @@ const Step5 = ({ onComplete }) => {
       `}</style>
       <div className="bg-blob blob-left"></div>
       <div className="bg-blob blob-right"></div>
+                        <ToastContainer position="top-right" autoClose={3000} />
+
       {/* Header logo */}
       <header className="w-full max-w-7xl px-8 py-6 flex items-center gap-3">
         <img
@@ -182,27 +188,37 @@ const Step5 = ({ onComplete }) => {
         {/* LEFT CARD */}
         <div className="bg-[#1E1E1E] border-[#1E1E1E] rounded-[20px] p-10 shadow-lg w-full max-w-md">
           {/* Platform tabs */}
-          <div className="rounded-lg p-1 flex mb-2 justify-center flex-wrap gap-2">
-            {[
-              "Shiprocket",
-              "Dilevery",
-              "Shipway",
-              "Ithink Logistics",
-              "Nimbuspost",
-            ].map((name) => (
-              <button
-                key={name}
-                className={`px-3 py-1.5 rounded-md text-sm transition-colors duration-300 ${
-                  platform === name
-                    ? "bg-white text-black font-semibold"
-                    : "bg-transparent text-gray-400"
-                }`}
-                onClick={() => setPlatform(name)}
-              >
-                {name}
-              </button>
-            ))}
-          </div>
+        {/* Platform tabs */}
+<div className="rounded-lg p-1 flex mb-2 justify-center flex-wrap gap-2">
+  {[
+    "Shiprocket",
+    "Dilevery",
+    "Shipway",
+    "Ithink Logistics",
+    "Nimbuspost",
+  ].map((name) => {
+    const isEnabled = name === "Shiprocket";
+    return (
+      <button
+        key={name}
+        disabled={!isEnabled}
+        aria-disabled={!isEnabled}
+        onClick={() => isEnabled && setPlatform(name)}
+        onKeyDown={(e) => {
+          if (!isEnabled) e.preventDefault();
+        }}
+        className={`px-3 py-1.5 rounded-md text-sm transition-colors duration-300 ${
+          platform === name && isEnabled
+            ? "bg-white text-black font-semibold"
+            : "bg-transparent text-gray-400"
+        } ${!isEnabled ? "cursor-not-allowed opacity-50" : ""}`}
+      >
+        {name}
+      </button>
+    );
+  })}
+</div>
+
 
           {/* Platform icon */}
           <div className="flex justify-center mb-3">
@@ -217,10 +233,12 @@ const Step5 = ({ onComplete }) => {
 
           {/* Heading */}
           <h2 className="text-center text-2xl font-bold mb-2">
-           Connect your Shiprocket Account
+            Connect your Shiprocket Account
           </h2>
           <p className="text-center text-sm text-gray-400 mb-4">
-Track your accounts profit, sells and buys in detail with shipping account.          </p>
+            Track your accounts profit, sells and buys in detail with shipping
+            account.{" "}
+          </p>
 
           {/* Form fields */}
           <form onSubmit={handleSubmit} className="space-y-4 mb-4">
@@ -254,7 +272,7 @@ Track your accounts profit, sells and buys in detail with shipping account.     
       </main>
     </div>
   );
-}; 
+};
 
 const InputField = ({ label, name, value, onChange, type = "text" }) => (
   <div>

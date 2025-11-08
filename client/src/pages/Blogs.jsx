@@ -592,7 +592,6 @@ const Blogs = () => {
 `,
     },
   ];
-
   // const [blogs, setBlogs] = useState([]);
   // const [isLoading, setIsLoading] = useState(true);
   const [selectedBlog, setSelectedBlog] = useState(null);

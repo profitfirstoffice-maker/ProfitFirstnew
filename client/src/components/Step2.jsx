@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import axiosInstance from "../../axios";
 import { PulseLoader } from "react-spinners";
 import axios from "axios";
@@ -77,6 +78,9 @@ const Step2 = ({ onComplete }) => {
       `}</style>
       <div className="bg-blob blob-left"></div>
       <div className="bg-blob blob-right"></div>
+
+            <ToastContainer position="top-right" autoClose={3000} />
+
       {/* Header logo */}
       <header className="w-full max-w-7xl px-12 py-10 flex items-center gap-3">
         <img
@@ -102,7 +106,7 @@ const Step2 = ({ onComplete }) => {
             >
               Shopify
             </button>
-            <button
+            {/* <button
               onClick={() => setPlatform("Wordpress")}
               className={`px-4 py-1.5 rounded-md text-sm transition-colors duration-300 ${
                 platform === "Wordpress"
@@ -111,7 +115,13 @@ const Step2 = ({ onComplete }) => {
               }`}
             >
               Wordpress
-            </button>
+            </button> */}
+             <button
+    disabled
+    className={`px-4 py-1.5 rounded-md text-sm transition-colors duration-300 cursor-not-allowed opacity-50`}
+  >
+    Wordpress
+  </button>
           </div>
 
           {/* Shopify icon */}
